@@ -1,6 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.5.4 <0.9.0;
 
+
+library SafeMath {
+    function sub(uint256 a, uint256 b) internal pure returns(uint256) {
+        require(b <= a);
+        return a - b;
+    }
+
+    function add(uint256 a, uint256 b) internal pure returns(uint256) {
+        uint256 c = a + b;
+        require(c >= a);
+        return c;
+    }
+}
+
 contract AirfinexToken {
     
     string public constant name = "Airfinex";
@@ -27,6 +41,8 @@ contract AirfinexToken {
         uint256 _value
     );
 
+    using SafeMath for uint256;
+
     constructor() {
         balanceOf[msg.sender] = totalSupply;
     }
@@ -35,8 +51,8 @@ contract AirfinexToken {
         require(_value > 0);
         require(balanceOf[msg.sender] >= _value);
         
-        balanceOf[msg.sender] -= _value;
-        balanceOf[_to] += _value;
+        balanceOf[msg.sender] = balanceOf[msg.sender].sub(_value);
+        balanceOf[_to] = balanceOf[_to].add(_value);
         
         emit Transfer(msg.sender, _to, _value);
         
@@ -47,10 +63,10 @@ contract AirfinexToken {
         require(_value <= balanceOf[_from]);
         require(_value <= allowance[_from][msg.sender]);
 
-        balanceOf[_from] -= _value;
-        balanceOf[_to] += _value;
+        balanceOf[_from] = balanceOf[_from].sub(_value);
+        balanceOf[_to] = balanceOf[_to].add(_value);
 
-        allowance[_from][msg.sender] -= _value;
+        allowance[_from][msg.sender] = allowance[_from][msg.sender].sub(_value);
 
         emit Transfer(_from, _to, _value);
         return true;
